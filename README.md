@@ -62,6 +62,16 @@ python main.py external_links
 
 ```
 
+### 定时启动
+```shell
+# 先添加执行权限
+chmod +x telegram_crawler_run.sh
+# 设置定时启动命令
+crontab -e
+# 然后把当前路径的telegram_crawler_run.sh添加进去
+0 0 * * * /path/to/telegram_crawler_run.sh
+```
+
 ## 存在的一些问题
 部分群组/频道已经不存在了  
 ![img_5.png](img/img_5.png)  
