@@ -2,7 +2,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:latest
-    container_name: mysql
+    container_name: mysql_telegram_crawler
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
