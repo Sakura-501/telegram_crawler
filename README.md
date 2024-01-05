@@ -65,7 +65,7 @@ python main.py external_links
 
 ```
 
-### 定时启动
+## 定时启动
 ```shell
 # 先添加执行权限
 chmod +x telegram_crawler_run.sh
