@@ -28,6 +28,9 @@ keyword:group_channel:message:external_links=99:3763:117226:848
 ![img_3.png](img/img_3.png)
 
 ## 使用教程
+### socks5-代理搭建
+感觉会用到这个：https://github.com/gao497290234/clash-for-linux  
+由于我是在本机上面跑的，用的clash的默认端口7890
 ### 数据库-mysql
 首先需要启动mysql数据库，需提前配置docker环境，然后进入到有docker-compose.yml的目录，执行下面命令即可（如果需要改变其他配置，可以到docker-compose.yml修改）  
 ``docker-compse up -d``

@@ -10,7 +10,8 @@ class telegram_client():
         self.api_id=config_all.api_id
         self.api_hash=config_all.api_hash
 
-        self.client=TelegramClient(self.session_name,self.api_id,self.api_hash,proxy=(socks.SOCKS5,config_all.proxy_ip,config_all.proxy_port)).start()
+        self.client=TelegramClient(self.session_name,self.api_id,self.api_hash, proxy = (socks.SOCKS5, config_all.proxy_ip, config_all.proxy_port)).start()
+        # , proxy = (socks.SOCKS5, config_all.proxy_ip, config_all.proxy_port)
 
     # def start(self):
     #     print('(Press Ctrl+C to stop this)')
