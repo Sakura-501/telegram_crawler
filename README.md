@@ -5,7 +5,7 @@
    + 从config.ini文件获取keywords（可自行设置） ，然后在一些具有“搜群”的群组，输入关键词查询相关群组，最终把结果保存到本地文件和group_channel表中；
 3. 从第二步中爬取的group/channel爬取历史消息，适当保存id、日期、文本、如果存在应用类型的media给id打个标记，后续可以从该条消息直接下载附件；该步骤保存了message文本消息和原始message类型；
 4. 从所有群组爬到的消息提取出外部链接并进行去重！
-5. （待完成）模拟访问外链，下载应用。
+5. 模拟访问外链，下载应用（待完成）
 
 ## 数量关系
 理想状态：  
@@ -18,21 +18,41 @@ keyword:group_channel:message:external_links=99:3763:117226:848
 ### 本地文本输出
 ![img.png](img/img.png)
 
-![img_1.png](img/img_1.png)
-
-### mysql数据库结构
+## ~~mysql数据库结构~~（换成mongodb）
 ![img.png](img/img_9.png)
 
-![img_2.png](img/img_2.png)
+下面是4个collection的结构设计
+### keywords集合
+| _id | bot_name | crawl_time | keyword | search_times |
+|-----|----------|------------|---------|--------------|
+| xxx | bot名字    | 时间         | xxx     | n            |
 
-![img_3.png](img/img_3.png)
+### group_channel集合
+
+| _id | bot_name | crawl_time | keyword | group_channel_url | have_searched_times |
+|-----|----------|------------|---------|-------------------|---------------------|
+| xxx | bot名字    | 时间         | 关键字     | 群组/频道url          |                     |
+
+### history_message集合(message_date和message都经过str强转)
+
+| _id | group_channel_url | message_id | message_date | message_text | message | is_application_media |
+|-----|-------------------|------------|--------------|--------------|---------|----------------------|
+| xxx | 群组/频道url          | 消息id       | 消息时间         | 消息内容         | 消息全部    | 是否存在apk/exe类型        |
+
+### external_links集合
+
+| _id | link | 
+|-----|------|
+| xxx | 外部链接 | 
+
+
 
 ## 使用教程
 ### socks5-代理搭建
 感觉会用到这个：https://github.com/gao497290234/clash-for-linux  
 由于我是在本机上面跑的，用的clash的默认端口7890
-### 数据库-mysql
-首先需要启动mysql数据库，需提前配置docker环境，然后进入到有docker-compose.yml的目录，执行下面命令即可（如果需要改变其他配置，可以到docker-compose.yml修改）  
+### 数据库-~~mysql~~(换成mongodb)
+首先需要启动~~mysql~~(mongodb)数据库，需提前配置docker环境，然后进入到有docker-compose.yml的目录，执行下面命令即可（如果需要改变其他配置，可以到docker-compose.yml修改）  
 ``docker-compse up -d``
 ### 安装依赖
 ``pip install -r requirement.txt``
@@ -47,6 +67,8 @@ keyword:group_channel:message:external_links=99:3763:117226:848
 ![img_4.png](img/img_4.png)
 
 ### 命令行使用
+`python telbot`查看使用手册  
+以下作废
 ```
 # 1. 获取99个关键词
 python main.py keywords
@@ -64,7 +86,7 @@ python main.py history_message
 python main.py external_links
 
 ```
-
+~~
 ## 定时启动
 ```shell
 # 先添加执行权限

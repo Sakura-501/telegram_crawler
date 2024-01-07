@@ -3,9 +3,16 @@ import os.path
 import re
 import time
 
-from config import config_all
+from tools.config import config_all
+from tools.create_client import telegram_client
+from tools.create_mongo import mongo_latest
 
 config_all = config_all()
+
+mongo_instance = mongo_latest()
+db = mongo_instance.db
+now_collection = db[config_all.mongo_keywords_collection_name]
+
 
 async def click_button(bot_entity, word):
     async for message in client.iter_messages(bot_entity, limit=1):
@@ -29,35 +36,34 @@ def keyword_write_file(bot_name, keyword_result):
                 continue
             file.write(keyword + "\n")
 
+
 def seperate_keyword(keyword):
     pattern = r"(.+?)\((.+?)\)"
-    match = re.findall(pattern,keyword)
-    return match[0][0],int(match[0][1])
+    match = re.findall(pattern, keyword)
+    return match[0][0], int(match[0][1])
 
-def keyword_write_sql(bot_name, current_time, keyword_result):
+
+def keyword_write_sql(bot_name, keyword_result):
     print("keyword_write_sql")
-    insert_keyword_sql = "insert into keywords(bot_name,time_stamp,keyword,search_times) values ( %s,%s,%s,%s )"
+    # insert_keyword_sql = "insert into keywords(bot_name,time_stamp,keyword,search_times) values ( %s,%s,%s,%s )"
     for keyword in keyword_result:
         if "返回" in keyword:
             continue
         try:
-            key,times=seperate_keyword(keyword)
-            cursor.execute(insert_keyword_sql,(bot_name,current_time,key,times))
-            db.commit()
+            key, times = seperate_keyword(keyword)
+            current_time = datetime.datetime.now()
+            # cursor.execute(insert_keyword_sql,(bot_name,current_time,key,times))
+            insert_data = {"bot_name": bot_name, "crawl_time": current_time, "keyword": key, "search_times": times}
+            now_collection.insert_one(insert_data)
         except Exception as e:
-            db.rollback()
             print(e)
 
 
-async def get_keywords(bot,mysql_instance1,client_instance):
-    global mysql_instance,client, db, cursor
-    mysql_instance = mysql_instance1
+async def get_keywords(bot,client_instance):
+    global client
     client=client_instance.client
-    db=mysql_instance.db
-    cursor=mysql_instance.cursor
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    bot_name=bot.replace("https://t.me/", "")
+    bot_name = bot.replace("https://t.me/", "")
     bot_entity = await client.get_entity(bot)
 
     await client.send_message(bot_entity, "频道")
@@ -77,4 +83,4 @@ async def get_keywords(bot,mysql_instance1,client_instance):
         # keywords结果写到./keywords/202x-x-x-bot.txt文件中
         keyword_write_file(bot_name, keyword_result)
         # keywords结果写到keywords表中
-        keyword_write_sql(bot_name, current_time, keyword_result)
+        keyword_write_sql(bot_name, keyword_result)

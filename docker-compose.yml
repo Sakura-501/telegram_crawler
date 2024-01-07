@@ -1,15 +1,27 @@
 version: '3.8'
 services:
-  mysql:
-    image: mysql:latest
-    container_name: mysql_telegram_crawler
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: telegram_crawler
-#      MYSQL_USER: crawler
-#      MYSQL_PASSWORD: crawler
-    ports:
-      - '3306:3306'
-    volumes:
-      - ./mysql_data:/var/lib/mysql
+#  mysql:
+#    image: mysql:latest
+#    container_name: mysql_telegram_crawler
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: telegram_crawler
+##      MYSQL_USER: crawler
+##      MYSQL_PASSWORD: crawler
+#    ports:
+#      - '3306:3306'
+#    volumes:
+#      - ./mysql_data:/var/lib/mysql
+   mongodb:
+     image: mongo:latest
+     container_name: mongo_darkweb_crawler
+     restart: always
+     ports:
+       - 27017:27017
+     volumes:
+       - ./data/db:/data/db
+       - ./data/logs:/data/logs
+     environment:
+       MONGO_INITDB_ROOT_USERNAME: username_you_set
+       MONGO_INITDB_ROOT_PASSWORD: password_you_set

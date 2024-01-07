@@ -1,23 +1,35 @@
 import json
+import os
 from configparser import ConfigParser
 
 class config_all:
     def __init__(self):
         config=ConfigParser()
         # 配置文件路径
-        config.read("config.ini",encoding="utf-8")
+        now_path=os.getcwd()
+        config.read(now_path+"/config.ini",encoding="utf-8")
         # 详细配置
         self.api_id = int(config["telegram_config"]["api_id"])
         self.api_hash=config["telegram_config"]["api_hash"]
         self.session_name=config["telegram_config"]["session_name"]
 
-        self.mysql_host=config["mysql"]["host"]
-        self.mysql_port = int(config["mysql"]["port"])
-        self.mysql_user = config["mysql"]["user"]
-        self.mysql_password = config["mysql"]["password"]
-        self.mysql_database = config["mysql"]["database"]
-        self.mysql_charset = config["mysql"]["charset"]
-        self.mysql_table_keyword = config["mysql"]["table_keyword"]
+        # self.mysql_host=config["mysql"]["host"]
+        # self.mysql_port = int(config["mysql"]["port"])
+        # self.mysql_user = config["mysql"]["user"]
+        # self.mysql_password = config["mysql"]["password"]
+        # self.mysql_database = config["mysql"]["database"]
+        # self.mysql_charset = config["mysql"]["charset"]
+        # self.mysql_table_keyword = config["mysql"]["table_keyword"]
+
+        self.mongo_host = config["mongo"]["host"]
+        self.mongo_port = config["mongo"]["port"]
+        self.mongo_username = config["mongo"]["username"]
+        self.mongo_password = config["mongo"]["password"]
+        self.mongo_database = config["mongo"]["database"]
+        self.mongo_keywords_collection_name = config["mongo"]["keywords_collection_name"]
+        self.mongo_group_channel_collection_name = config["mongo"]["group_channel_collection_name"]
+        self.mongo_history_message_collection_name=config["mongo"]["history_message_collection_name"]
+        self.mongo_external_links_collection_name=config["mongo"]["external_links_collection_name"]
 
         self.proxy_ip=config["proxy"]["ip"]
         self.proxy_port = int(config["proxy"]["port"])
