@@ -35,31 +35,20 @@
 4. 从所有群组爬到的消息提取出外部链接并进行去重！
 5. 模拟访问外链，下载应用（待完成）
 
-## 数量关系
-理想状态：  
-keyword:group_channel:message:external_links=1:40:40000:xxxx
-第一次测试实际状态，中途被风控了(2023.12.13)：  
-keyword:group_channel:message:external_links=99:3763:117226:848
-
-
-## 样例展示
-### 本地文本输出
-![img.png](img/img.png)
-
 
 ## 使用教程
 ### socks5-代理搭建
 感觉会用到这个：https://github.com/gao497290234/clash-for-linux  
 由于我是在本机上面跑的，用的clash的默认端口7890
-### 数据库-~~mysql~~(换成mongodb)
-首先需要启动~~mysql~~(mongodb)数据库，需提前配置docker环境，然后进入到有docker-compose.yml的目录，执行下面命令即可（如果需要改变其他配置，可以到docker-compose.yml修改）  
+### mongodb
+首先需要启动~~mysql~~(mongodb)数据库，需提前配置docker环境，然后进入到有docker-compose.yml的目录，执行下面命令即可（注意提前修改docker-compose.yml中mongodb的账号密码）  
 ``docker-compse up -d``
 ### 安装依赖
 ``pip install -r requirement.txt``
 ### config.ini配置(config.example.ini->config.ini)
 **注意根据自己的实际情况配置,在config.ini增加配置后要到config.py添加相应的变量才能使用**  
 [telegram_config]：需要去https://my.telegram.org/apps获取
-[mysql]：mysql数据库的配置，注意和docker-mysql那边的一致  
+[mongo]：mongo数据库的配置，注意和docker-mongo那边的一致  
 [proxy]：telegram运行获取消息需要挂代理，clash默认7890端口  
 [download_dir]：本地文件下载目录  
 [bot_channel_group]：需要使用的bot/群组/频道  
@@ -69,25 +58,40 @@ keyword:group_channel:message:external_links=99:3763:117226:848
 ### 命令行使用
 `python telbot`查看使用手册  
 以下作废
+```shell
+echo "1. 首先获取99个keywords"
+python3 telbot -k from_config
+
+echo "2.1 从数据库获取关键字（默认99个），去查询group/channel"
+python3 telbot -s from_collection
+
+echo "2.2 从config.ini获取关键字（需自行添加），去查询group/channel"
+python3 telbot -s from_config
+
+echo "3. 从数据库获取group/channel，查询历史消息（默认200个，每个1000条）"
+python3 telbot -m from_collection
+
+echo "4. 从数据库获取历史消息，过滤出外链（默认200w条）"
+python3 telbot -e from_collection
 ```
-# 1. 获取99个关键词
-python main.py keywords
 
-# 2.1 根据第1步收集到的关键词搜索群组/频道（默认只点击一次下一页，一页20个共40个）
-python main.py search_group_channel from_table
-
-# 2.2 从config.ini获取keyword，然后去搜索群组/频道
-python main.py search_group_channel from_config
-
-# 3. 根据第2步收集的群组/频道，爬取他们的历史消息，默认是3960个群组/频道，每个限制1000条消息
-python main.py history_message
-
-# 4. 将第3步提取的message过滤出外链(默认是最新的20w条消息)
-python main.py external_links
-
+## 后台运行 OR 定时启动
+### screen后台运行
+补充：可以不用定时启动，screen太香啦！
+```shell
+# 启动一个screen任务窗口
+screen -S telegram_crawler
+./telegram_crawler_run.sh
+# 然后可以Ctrl+a+d挂在后台
+# 查看全部screen任务
+screen -ls
+# 恢复screen窗口
+screen -r {pid}
+screen -r {task_name}
+# 删除screen任务
+exit
 ```
-~~
-## 定时启动
+### 定时启动
 ```shell
 # 先添加执行权限
 chmod +x telegram_crawler_run.sh
