@@ -1,24 +1,6 @@
 # telegram_crawler
-## 功能
-1. 从telegram_bot中查询前99个热门关键词，写入本地文件和mysql数据库keywords表中；（也可以自己在config.ini设置关键词）
-2. + 从数据库keywords表中查询最新获取的前99个热门关键词，然后在一些具有“搜群”的群组，输入关键词查询相关群组，最终把结果保存到本地文件和group_channel表中；
-   + 从config.ini文件获取keywords（可自行设置） ，然后在一些具有“搜群”的群组，输入关键词查询相关群组，最终把结果保存到本地文件和group_channel表中；
-3. 从第二步中爬取的group/channel爬取历史消息，适当保存id、日期、文本、如果存在应用类型的media给id打个标记，后续可以从该条消息直接下载附件；该步骤保存了message文本消息和原始message类型；
-4. 从所有群组爬到的消息提取出外部链接并进行去重！
-5. 模拟访问外链，下载应用（待完成）
-
-## 数量关系
-理想状态：  
-keyword:group_channel:message:external_links=1:40:40000:xxxx
-第一次测试实际状态，中途被风控了(2023.12.13)：  
-keyword:group_channel:message:external_links=99:3763:117226:848
-
-
-## 样例展示
-### 本地文本输出
-![img.png](img/img.png)
-
-## ~~mysql数据库结构~~（换成mongodb）
+## mongodb数据库结构
+这个是原来mysql的结构：
 ![img.png](img/img_9.png)
 
 下面是4个collection的结构设计
@@ -43,8 +25,26 @@ keyword:group_channel:message:external_links=99:3763:117226:848
 
 | _id | link | 
 |-----|------|
-| xxx | 外部链接 | 
+| xxx | 外部链接 |
 
+## 功能
+1. 从telegram_bot中查询前99个热门关键词，写入本地文件和mysql数据库keywords表中；（也可以自己在config.ini设置关键词）
+2. + 从数据库keywords表中查询最新获取的前99个热门关键词，然后在一些具有“搜群”的群组，输入关键词查询相关群组，最终把结果保存到本地文件和group_channel表中；
+   + 从config.ini文件获取keywords（可自行设置） ，然后在一些具有“搜群”的群组，输入关键词查询相关群组，最终把结果保存到本地文件和group_channel表中；
+3. 从第二步中爬取的group/channel爬取历史消息，适当保存id、日期、文本、如果存在应用类型的media给id打个标记，后续可以从该条消息直接下载附件；该步骤保存了message文本消息和原始message类型；
+4. 从所有群组爬到的消息提取出外部链接并进行去重！
+5. 模拟访问外链，下载应用（待完成）
+
+## 数量关系
+理想状态：  
+keyword:group_channel:message:external_links=1:40:40000:xxxx
+第一次测试实际状态，中途被风控了(2023.12.13)：  
+keyword:group_channel:message:external_links=99:3763:117226:848
+
+
+## 样例展示
+### 本地文本输出
+![img.png](img/img.png)
 
 
 ## 使用教程
