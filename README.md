@@ -65,8 +65,7 @@ mongorestore -u[username] -p[password]--authenticationDatabase admin -d telegram
 ![img_4.png](img/img_4.png)
 
 ### 命令行使用
-`python telbot`查看使用手册  
-以下作废
+`python telbot`查看使用手册
 ```shell
 echo "1. 首先获取99个keywords"
 python3 telbot -k from_config
@@ -82,6 +81,21 @@ python3 telbot -m from_collection
 
 echo "4. 从数据库获取历史消息，过滤出外链（默认200w条）"
 python3 telbot -e from_collection
+-------------------------------------------------
+usage: telbot [-h] [-k {from_config}] [-s {from_collection,from_config}] [-m {from_collection}] [-e {from_collection}]
+
+a bot for telegram_crawler.
+
+options:
+  -h, --help            show this help message and exit
+  -k {from_config}, --keywords {from_config}
+                        crawl 99 keywords from bot in config.ini.
+  -s {from_collection,from_config}, --search_group_channel {from_collection,from_config}
+                        crawl group/channel by sending keywords from collection/config.ini.
+  -m {from_collection}, --history_message {from_collection}
+                        crawl history_message from group/channel which is in collection.(最少访问优先爬取原则)
+  -e {from_collection}, --external_links {from_collection}
+                        extract external_links from history_message in collection.
 ```
 
 ## 后台运行 OR 定时启动
