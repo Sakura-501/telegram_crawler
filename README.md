@@ -1,8 +1,17 @@
-# telegram_crawler
-## mongodb数据库结构
+# telegram_crawler(telbot)
+## telegram_crawler数据库结构
+### mysql原来结构
 这个是原来mysql的结构：
 ![img.png](img/img_9.png)
-
+### mongodb迁移指南
+```shell
+# 先导出
+docker exec -it xxxx /bin/bash
+mongodump -u[username] -p[password] --authenticationDatabase admin 
+# 再导入
+docker exec -it xxxx /bin/bash
+mongorestore -u[username] -p[password]--authenticationDatabase admin -d telegram_crawler /data/logs/telegram_crawler/darkweb_crawler/
+```
 下面是4个collection的结构设计
 ### keywords集合
 | _id | bot_name | crawl_time | keyword | search_times |
