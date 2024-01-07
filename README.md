@@ -10,7 +10,7 @@ docker exec -it xxxx /bin/bash
 mongodump -u[username] -p[password] --authenticationDatabase admin 
 # 再导入
 docker exec -it xxxx /bin/bash
-mongorestore -u[username] -p[password]--authenticationDatabase admin -d telegram_crawler /data/logs/telegram_crawler/darkweb_crawler/
+mongorestore -u[username] -p[password]--authenticationDatabase admin -d telegram_crawler /data/logs/telegram_crawler/telegram_crawler/
 ```
 下面是4个collection的结构设计
 ### keywords集合
