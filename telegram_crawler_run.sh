@@ -17,6 +17,7 @@ while [ 1 ]; do
     sleep 5;
     echo "3. 从数据库获取group/channel，查询历史消息（默认200个，每个1000条）"
     python3 telbot -m from_collection
-    # 12个小时
+#     12个小时
 #    sleep 43200;
+    sleep 21600;
 done
