@@ -98,7 +98,7 @@ def write_one_url_message_table(one_url, history_message):
 
             before_insert_search_data={"group_channel_url":one_url,"message_id":id}
             if not history_message_collection.find_one(before_insert_search_data):
-                insert_data = {"group_channel_url": one_url, "message_id": id, "message_data": list[0],
+                insert_data = {"group_channel_url": one_url, "message_id": id, "message_date": list[0],
                                "message_text": list[1], "message": list[2], "is_application_media": list[3]}
                 history_message_collection.insert_one(insert_data)
 
