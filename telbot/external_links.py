@@ -34,7 +34,7 @@ def grep_external_links():
         all_message_tmp=list(all_message_tmp)
         if not all_message_tmp:
             print("No messages!!! Please add some messages in step 3!")
-            exit()
+            # exit()
         else:
             for message in all_message_tmp:
                 # 将\n字符串替换成空格，后面方便剔除

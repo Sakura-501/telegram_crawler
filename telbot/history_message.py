@@ -29,7 +29,7 @@ def get_all_group_channel_url():
         all_url_tmp = list(all_url_tmp)
         if not all_url_tmp:
             print("No group_channel_urls!!! Please add some urls in step 2!")
-            exit()
+            # exit()
         else:
             for url in all_url_tmp:
                 all_url.append(url["group_channel_url"])

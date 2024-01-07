@@ -26,7 +26,7 @@ def get_all_keywords():
         all_keywords_tmp=keywords_collection.find({},{"_id":0,"keyword":1}).sort("crawl_time",pymongo.DESCENDING).limit(config_all.keyword_search_limit)
         if not all_keywords_tmp:
             print("No keywords!!! Please add some keywords in step 1!")
-            exit()
+            # exit()
         else:
             for keyword in all_keywords_tmp:
                 all_keywords.append(keyword["keyword"])
