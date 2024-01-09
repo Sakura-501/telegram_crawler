@@ -39,35 +39,39 @@ def get_all_group_channel_url():
 
 
 async def get_one_url_history_message(one_url):
+    # try:
+    #     url_entity = await client.get_entity(one_url)
+    # except Exception as e:
+    #     print(e)
+    #     return False, {}
+
+    history_message = {}
     try:
-        url_entity = await client.get_entity(one_url)
+        # 默认取最新的消息1000条，下面limit记得修改
+        # 奥，可以字典嵌套数组：id作为键，然后值是一个列表[message.date,message.text, str(message), is_media]
+        async for message in client.iter_messages(one_url, limit=config_all.history_message_limit):
+            tmp_result = []
+            tmp_result.append(message.date)
+            tmp_result.append(message.text)
+            tmp_result.append(str(message))
+
+            try:
+                if hasattr(message.media, "document"):
+                    # 判断是否有media同时类型是否为apk或者exe，是的话直接打标记
+                    if ("application/vnd.android.package-archive" in message.media.document.mime_type) | (
+                            "application/x-msdownload" in message.media.document.mime_type):
+                        tmp_result.append(True)
+                    else:
+                        tmp_result.append(False)
+                else:
+                    tmp_result.append(False)
+                history_message[message.id] = tmp_result
+            except Exception as e:
+                print(e)
+                return False, {}
     except Exception as e:
         print(e)
         return False, {}
-
-    history_message = {}
-    # 默认取最新的消息1000条，下面limit记得修改
-    # 奥，可以字典嵌套数组：id作为键，然后值是一个列表[message.date,message.text, str(message), is_media]
-    async for message in client.iter_messages(one_url, limit=config_all.history_message_limit):
-        tmp_result = []
-        tmp_result.append(str(message.date))
-        tmp_result.append(message.text)
-        tmp_result.append(str(message))
-
-        try:
-            if hasattr(message.media, "document"):
-                # 判断是否有media同时类型是否为apk或者exe，是的话直接打标记
-                if ("application/vnd.android.package-archive" in message.media.document.mime_type) | (
-                        "application/x-msdownload" in message.media.document.mime_type):
-                    tmp_result.append(True)
-                else:
-                    tmp_result.append(False)
-            else:
-                tmp_result.append(False)
-            history_message[message.id] = tmp_result
-        except Exception as e:
-            print(e)
-            return False, {}
 
     return True, history_message
 
@@ -139,7 +143,8 @@ async def get_history_message(client_instance):
             # 如果获取历史信息成功，要将group_channel_table里面的have_searched_times+1
             searched_times_plus_one(one_url)
 
-            write_one_url_message_file(one_url_name, history_message)
+            # 写文件就先不写了。
+            # write_one_url_message_file(one_url_name, history_message)
 
             write_one_url_message_table(one_url, history_message)
 
