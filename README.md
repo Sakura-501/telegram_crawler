@@ -56,7 +56,7 @@ mongorestore -u[username] -p[password]--authenticationDatabase admin -d telegram
 ``pip install -r requirement.txt``
 ### config.ini配置(config.example.ini->config.ini)
 **注意根据自己的实际情况配置,在config.ini增加配置后要到config.py添加相应的变量才能使用**  
-[telegram_config]：需要去https://my.telegram.org/apps获取
+[telegram_config]：需要去https://my.telegram.org/apps获取(https://juejin.cn/s/my.telegram.org%E8%8E%B7%E5%8F%96api_id%20api_hash)  
 [mongo]：mongo数据库的配置，注意和docker-mongo那边的一致  
 [proxy]：telegram运行获取消息需要挂代理，clash默认7890端口  
 [download_dir]：本地文件下载目录  
