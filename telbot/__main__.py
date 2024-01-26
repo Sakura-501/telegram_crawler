@@ -27,9 +27,9 @@ async def run_get_group_channel(option):
         await get_group_channel(option, bot,client_instance)
 
 
-async def run_get_history_message():
+async def run_get_history_message(option):
     print("run_get_history_message")
-    await get_history_message(client_instance)
+    await get_history_message(option,client_instance)
 
 
 def run_get_external_links():
@@ -43,8 +43,9 @@ def get_argparse() -> argparse.ArgumentParser:
                         help="crawl 99 keywords from bot in config.ini.")
     parser.add_argument("-s", "--search_group_channel", type=str, choices=["from_collection", "from_config"],
                         help="crawl group/channel by sending keywords from collection/config.ini.")
-    parser.add_argument("-m", "--history_message", type=str, choices=["from_collection"],
-                        help="crawl history_message from group/channel which is in collection.(最少访问优先爬取原则)")
+    parser.add_argument("-m", "--history_message", type=str, choices=["from_collection","from_config"],
+                        help="crawl history_message from group/channel which is in collection OR in config.ini.("
+                             "最少访问优先爬取原则)")
     parser.add_argument("-e", "--external_links", type=str, choices=["from_collection"],
                         help="extract external_links from history_message in collection.")
     return parser
@@ -56,8 +57,8 @@ def all_run(args):
         loop.run_until_complete(run_get_keywords())
     elif args.search_group_channel == "from_collection" or args.search_group_channel == "from_config":
         loop.run_until_complete(run_get_group_channel(args.search_group_channel))
-    elif args.history_message == "from_collection":
-        loop.run_until_complete(run_get_history_message())
+    elif args.history_message == "from_collection" or args.history_message == "from_config":
+        loop.run_until_complete(run_get_history_message(args.history_message))
     elif args.external_links == "from_collection":
         get_external_links()
     else:

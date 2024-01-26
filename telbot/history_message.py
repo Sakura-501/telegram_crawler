@@ -6,12 +6,14 @@ import pymongo
 
 from tools.config import config_all
 from tools.create_mongo import mongo_latest
+from telethon.tl.types import MessageMediaPhoto
 
 config_all = config_all()
 mongo_instance = mongo_latest()
 db = mongo_instance.db
 group_channel_collection = db[config_all.mongo_group_channel_collection_name]
 history_message_collection = db[config_all.mongo_history_message_collection_name]
+
 
 
 # 默认查询最新获取的3960个group_channel_url（最后去重）
@@ -21,11 +23,11 @@ def get_all_group_channel_url():
     # search_url_sql="select gc_url from group_channel order by have_searched_times asc, id desc limit {}".format(config_all.history_message_use_url_limit)
     # search_url_sql="select gc_url from group_channel order by have_searched_times desc, id desc  limit 1"
     # cursor.execute(search_url_sql)
-    # all_url_tmp=cursor.fetchall()
+    # all_url_tmp=cursor.fetchall()\
     try:
-        all_url_tmp = group_channel_collection.find({}, {"_id": 0, "group_channel_url": 1}).sort("have_searched_times",
-                                                                                                 pymongo.ASCENDING).sort(
-            "crawl_time", pymongo.DESCENDING).limit(config_all.history_message_use_url_limit)
+        all_url_tmp = group_channel_collection.find({}, {"_id": 0, "group_channel_url": 1}).sort(
+            [("have_searched_times",
+          pymongo.ASCENDING),("crawl_time", pymongo.DESCENDING)]).limit(config_all.history_message_use_url_limit)
         all_url_tmp = list(all_url_tmp)
         if not all_url_tmp:
             print("No group_channel_urls!!! Please add some urls in step 2!")
@@ -56,13 +58,22 @@ async def get_one_url_history_message(one_url):
             tmp_result.append(str(message))
 
             try:
-                if hasattr(message.media, "document"):
-                    # 判断是否有media同时类型是否为apk或者exe，是的话直接打标记
-                    if ("application/vnd.android.package-archive" in message.media.document.mime_type) | (
-                            "application/x-msdownload" in message.media.document.mime_type):
-                        tmp_result.append(True)
-                    else:
-                        tmp_result.append(False)
+                # if hasattr(message.media, "document"):
+                #     # 判断是否有media同时类型是否为apk或者exe，是的话直接打标记
+                #     if ("application/vnd.android.package-archive" in message.media.document.mime_type) | (
+                #             "application/x-msdownload" in message.media.document.mime_type):
+                #         tmp_result.append(True)
+                #     else:
+                #         tmp_result.append(False)
+
+                # 这里直接判断有无media了。
+                if message.media != None:
+                    tmp_result.append(True)
+                    # print(message.media)
+                    #  下载图片
+                    if isinstance(message.media, MessageMediaPhoto):
+                        img_download_path = config_all.history_message_dir+"/"+one_url.replace("https://t.me/","")+"/img/"
+                        await message.download_media(file=img_download_path)
                 else:
                     tmp_result.append(False)
                 history_message[message.id] = tmp_result
@@ -79,14 +90,17 @@ async def get_one_url_history_message(one_url):
 # 奥，可以字典嵌套数组：id作为键，然后值是一个列表[date,str(message),is_media]
 def write_one_url_message_file(one_url_name, histroy_message):
     current_date = str(datetime.date.today())
-    history_message_dir = config_all.history_message_dir + "/" + current_date + "/"
-    if not os.path.exists(history_message_dir):
-        os.makedirs(history_message_dir)
 
-    filename = one_url_name + ".json"
-    with open(history_message_dir + filename, "w", encoding="utf-8") as file:
-        json.dump(histroy_message, file)
-
+    message_text_dir=config_all.history_message_dir+"/"+one_url_name+"/text/"
+    if not os.path.exists(message_text_dir):
+        os.makedirs(message_text_dir)
+    filename=current_date+".json"
+    text_result={}
+    for id,message in histroy_message.items():
+        text_result[id]=message[1]
+    with open(message_text_dir+filename,"w",encoding="utf-8") as file:
+        json.dump(text_result,file,ensure_ascii=False)
+    file.close()
 
 def write_one_url_message_table(one_url, history_message):
     # insert_history_message_sql="insert into history_message(group_channel_url,message_id,message_date,message_text,message,is_application_media) values (%s,%s,%s,%s,%s,%s)"
@@ -100,7 +114,7 @@ def write_one_url_message_table(one_url, history_message):
             #     cursor.execute(insert_history_message_sql,(one_url,id,list[0],list[1],list[2],list[3]))
             #     db.commit()
 
-            before_insert_search_data={"group_channel_url":one_url,"message_id":id}
+            before_insert_search_data = {"group_channel_url": one_url, "message_id": id}
             if not history_message_collection.find_one(before_insert_search_data):
                 insert_data = {"group_channel_url": one_url, "message_id": id, "message_date": list[0],
                                "message_text": list[1], "message": list[2], "is_application_media": list[3]}
@@ -124,12 +138,19 @@ def searched_times_plus_one(one_url):
         print(e)
 
 
-async def get_history_message(client_instance):
+async def get_history_message(option,client_instance):
     global client
     client = client_instance.client
 
-    # 首先获取上一步爬取的group/channel，默认取最新的3960条
-    all_group_channel_url = get_all_group_channel_url()
+    # 首先从mongodb数据库获取上一步爬取的group/channel，默认取最新的200条
+    # 或者从config.ini文件获取
+    all_group_channel_url=[]
+    if option == "from_collection":
+        all_group_channel_url = get_all_group_channel_url()
+    elif option == "from_config":
+        all_group_channel_url = list(set(config_all.group_channel_urls))
+    print(all_group_channel_url)
+    # exit()
 
     for i in range(len(all_group_channel_url)):
         begin_time = time.time()
@@ -138,13 +159,12 @@ async def get_history_message(client_instance):
         one_url_name = one_url.replace("https://t.me/", "")
         flag, history_message = await get_one_url_history_message(one_url)
         # print(history_message)
+        # 无论是否获取消息成功，都要+1
+        searched_times_plus_one(one_url)
 
         if flag:
-            # 如果获取历史信息成功，要将group_channel_table里面的have_searched_times+1
-            searched_times_plus_one(one_url)
 
-            # 写文件就先不写了。
-            # write_one_url_message_file(one_url_name, history_message)
+            write_one_url_message_file(one_url_name, history_message)
 
             write_one_url_message_table(one_url, history_message)
 

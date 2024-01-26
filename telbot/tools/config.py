@@ -43,6 +43,8 @@ class config_all:
         self.keyword_search_bot=json.loads(config["bot_channel_group"]["keyword_search_bot"])
         self.group_channel_search_bot=json.loads(config["bot_channel_group"]["group_channel_search_bot"])
 
+        self.group_channel_urls=json.loads(config["history_message"]["group_channel_urls"])
+
         self.keyword_search_limit=int(config["settings"]["keyword_search_limit"])
         self.group_channel_click_times=int(config["settings"]["group_channel_click_times"])
         self.history_message_limit = int(config["settings"]["history_message_limit"])

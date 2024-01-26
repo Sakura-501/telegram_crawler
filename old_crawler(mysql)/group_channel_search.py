@@ -80,7 +80,7 @@ async def use_keywords_search(keywords):
             message_id = 1318370
             # （PS：正式启用，这里需要修改）
             await client.send_message(bot_entity, keyword)
-            time.sleep(3)
+            time.sleep(5)
 
             # 首先获取返回消息的id，防止被其他人刷屏了
             async for message in client.iter_messages(bot_entity, limit=1):
@@ -99,7 +99,7 @@ async def use_keywords_search(keywords):
             for i in range(click_times):
                 flag = await click_button(message_id, "下一页")
                 if flag:
-                    time.sleep(2)
+                    time.sleep(10)
                     async for message in client.iter_messages(bot_entity, ids=message_id):
                         finds = message_filter_url(message.text)
                         results.extend(finds)
@@ -114,7 +114,7 @@ async def use_keywords_search(keywords):
         write_group_channel_to_table(results, keyword)
 
         # 查询完一个keyword休息一下，防止被群组封了（
-        time.sleep(20)
+        time.sleep(60)
 
 
 async def get_group_channel(option, bot, mysql_instance, client_instance):
